@@ -124,7 +124,8 @@ SelectWindow:
 	Gui, Main:Add, Text, , CURRENT MODE:
 	Gui, Main:Add, Text, W370 R3 vReminderText, To change mode of operation please select from Option menu.
 	Gui, Main:Add, Text, ,
-	Gui, Add, Slider, vMySlider gOnSliderChange W375 ToolTip Range0-1000 TickInterval100, MySlider
+	Gui, Add, Edit, w60 vMyEdit gOnEditChange
+	Gui, Add, UpDown, vMyUpDown Range0-10000, MyUpDown
 
 	; Right GUI element group
 	Gui, Main:Add, Text, X150 Y15 vtargettitleText, %targettitle%
@@ -132,7 +133,8 @@ SelectWindow:
 	Gui, Main:Add, Text, vMode w100, None
 	; Gui, Main:Add, Text, vMode w100 X150 Y15, None
 
-	GuiControl, Main:Hide, MySlider
+	GuiControl, Main:Hide, MyEdit
+	GuiControl, Main:Hide, MyUpDown
 	Gui, Main: Show, H400 H210
 
 	; Clear mouse clicks to target by sending UP to the keys:
@@ -175,8 +177,8 @@ MenuHandler:
 	Return
 }
 
-; When the slider value is changed, 'submit' the GUI which saves all the values to their variables and hence gets the value of the slider.
-OnSliderChange:
+; When the Edit value is changed, 'submit' the GUI which saves all the values to their variables and hence gets the value of the edit.
+OnEditChange:
 {
 	Gui, Submit, NoHide
 	Return
@@ -191,7 +193,9 @@ MenuFishing:
 
 	; Uses `n to insert line feeds in multi line text box.
 	GuiControl, Main:Text, Mode, Fishing
-	GuiControl, Main:Show, MySlider
+	GuiControl, ,MyEdit, 1500
+	GuiControl, Main:Show, MyEdit
+	GuiControl, Main:Show, MyUpDown
 	GuiControl, Main:Text, ReminderText, CURRENT AVALIBLE OPTIONS:`no- Pressing ctrl + alt + f will start fishing`no- Pressing ctrl + alt + s will stop any AutoKey function above
 
 	ProgState := 2
@@ -207,7 +211,9 @@ MenuAFK:
 
 	; Uses `n to insert line feeds in multi line text box.
 	GuiControl, Main:Text, Mode, AFK Mob
-	GuiControl, Main:Hide, MySlider
+	GuiControl, ,MyEdit, 1500
+	GuiControl, Main:Show, MyEdit
+	GuiControl, Main:Show, MyUpDown
 	GuiControl, Main:Text, ReminderText, CURRENT AVALIBLE OPTIONS:`no- Pressing ctrl + alt + m will start Mob Grinding`no- Pressing ctrl + alt + s will stop any AutoKey function above
 
 	ProgState := 4
@@ -223,7 +229,8 @@ MenuConcrete:
 
 	; Uses `n to insert line feeds in multi line text box.
 	GuiControl, Main:Text, Mode, Concrete
-	GuiControl, Main:Hide, MySlider
+	GuiControl, Main:Hide, MyEdit
+	GuiControl, Main:Hide, MyUpDown
 	GuiControl, Main:Text, ReminderText, CURRENT AVALIBLE OPTIONS:`no- Pressing ctrl + alt + c will start concrete farming`no- Pressing ctrl + alt + s will stop any AutoKey function above
 
 	ProgState := 3
@@ -239,7 +246,8 @@ MenuJumpFly:
 
 	; Uses `n to insert line feeds in multi line text box.
 	GuiControl, Main:Text, Mode, JumpFly
-	GuiControl, Main:Hide, MySlider
+	GuiControl, Main:Hide, MyEdit
+	GuiControl, Main:Hide, MyUpDown
 	GuiControl, Main:Text, ReminderText, CURRENT AVALIBLE OPTIONS:`no- Pressing ctrl + alt + e will double hit space and fire a rocket in main hand
 
 	ProgState := 1
@@ -251,7 +259,9 @@ MenuMobKill:
 	BreakLoop := 1
 
 	GuiControl, Main:Text, Mode, MobKill
-	GuiControl, Main:Hide, MySlider
+	GuiControl, ,MyEdit, 1500
+	GuiControl, Main:Hide, MyEdit
+	GuiControl, Main:Hide, MyUpDown
 	GuiControl, Main:Text, ReminderText, CURRENT AVALIBLE OPTIONS:`no- Pressing ctrl + alt + k will start killing mobs`no- Pressing ctrl + alt + s will stop any AutoKey function above
 
 	ProgState := 5
@@ -331,7 +341,7 @@ Fishing:
 			Break
 		}
 
-		Sleep %MySlider%
+		Sleep %MyEdit%
 		ControlClick, , ahk_id %id%, ,Right, , NAD
 		Sleep 100
 		ControlClick, , ahk_id %id%, ,Right, , NAU
@@ -367,7 +377,9 @@ MobGrind:
 		; Delay between LEFT clicks is controled by sleep delay above * value tested here (ie 12)
 		; Example = 100ms * 12 = 1.2 seconds
 		; This method allows AHK to better exit this mode and respond quicker to Stop command
-		If (Delay >= 12)
+		;GuiControlGet, MyEdit
+		DelayChosen := Floor(MyEdit / 100)
+		If (Delay >= DelayChosen)
 		{
 			; If delay counter reached, reset counter and send a LEFT click
 			Delay := 0
